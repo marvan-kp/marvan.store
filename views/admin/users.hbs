@@ -1,0 +1,35 @@
+<div class="container py-5">
+    <h2 class="mb-4 text-center">All Users</h2>
+    {{#if error}}
+        <div class="alert alert-danger">{{error}}</div>
+    {{/if}}
+
+    {{#if users.length}}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each users}}
+                    <tr>
+                        <td>{{this._id}}</td>
+                        <td>{{this.Email}}</td>
+                        <td>{{#if this.Name}}{{this.Name}}{{else}}N/A{{/if}}</td>
+                        <td>{{#if this.Phone}}{{this.phone}}{{else}}N/A{{/if}}</td>
+                        <td>
+                            <a href="/admin/user-details/{{this._id}}" class="btn btn-info btn-sm">View Details</a>
+                        </td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    {{else}}
+        <div class="alert alert-info text-center">No users found</div>
+    {{/if}}
+</div>

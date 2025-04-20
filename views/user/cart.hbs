@@ -1,0 +1,376 @@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  }
+
+  .cart-item img {
+    max-width: 100px;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .quantity-input {
+    width: 50px;
+    border-radius: 5px;
+  }
+
+  .cart-summary {
+    background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+  }
+
+  .card-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+  }
+
+  .card-body hr {
+    border-color: #bdc3c7;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .shipping-form {
+    background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    border: none;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
+    transform: translateY(-2px);
+  }
+
+  .btn-primary:disabled {
+    background: #a3bffa;
+    cursor: not-allowed;
+  }
+
+  .btn-outline-secondary {
+    border-color: #3498db;
+    color: #3498db;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+  }
+
+  .btn-outline-secondary:hover {
+    background: #3498db;
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  .decrement, .increment, .delete-btn {
+    border-radius: 5px;
+  }
+
+  h1 a {
+    color: #2c3e50;
+    text-decoration: none;
+    font-size: 2.5rem;
+    font-weight: 600;
+    transition: color 0.3s ease;
+  }
+
+  h1 a:hover {
+    color: #3498db;
+  }
+
+  .alert {
+    border-radius: 10px;
+    padding: 15px;
+  }
+
+  .alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+  }
+
+  .alert-info {
+    background-color: #cce5ff;
+    border-color: #b8daff;
+    color: #004085;
+  }
+
+  @media (min-width: 992px) {
+    .summary-shipping-row {
+      display: flex;
+      gap: 20px;
+    }
+    .summary-shipping-col {
+      flex: 1;
+    }
+  }
+</style>
+
+<div class="container py-5">
+  <h1 class="mb-5 text-center"><a href="/">Shopping Cart</a></h1>
+  {{#if error}}
+    <div class="alert alert-danger">{{error}}</div>
+  {{/if}}
+  {{#if isEmpty}}
+    <div class="alert alert-info">Your cart is empty. <a href="/">Continue shopping</a>.</div>
+  {{else}}
+    <div class="row">
+      <!-- Left: Cart Items and Order Summary -->
+      <div class="col-lg-8">
+        {{#each products}}
+        <div class="card mb-4 shadow-sm cart-item" data-product-id="{{this.item}}" style="border-radius: 15px;">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <!-- Product Image -->
+              <div class="col-md-3 text-center">
+                <img src="/product-images/{{this.product._id}}.jpg" alt="{{this.product.Name}}"
+                  class="img-fluid rounded">
+              </div>
+
+              <!-- Product Info -->
+              <div class="col-md-5">
+                <h5 class="card-title mb-1">{{this.product.Name}}</h5>
+                <p class="text-muted">Category: {{this.product.Category}}</p>
+              </div>
+
+              <!-- Quantity -->
+              <div class="col-md-2">
+                <div class="input-group input-group-sm">
+                  <button class="btn btn-sm btn-outline-secondary decrement" data-product-id="{{this.item}}" data-cart-id="{{../cartId}}" data-user-id="{{../user._id}}">-</button>
+                  <input type="text" class="form-control text-center quantity-input" value="{{this.quantity}}" readonly>
+                  <button class="btn btn-sm btn-outline-secondary increment" data-product-id="{{this.item}}" data-cart-id="{{../cartId}}" data-user-id="{{../user._id}}">+</button>
+                </div>
+              </div>
+
+              <!-- Price & Delete -->
+              <div class="col-md-2 text-end">
+                <p class="fw-bold mb-1" style="color: #2c3e50;">₹ {{this.product.Price}}</p>
+                <button class="btn btn-sm btn-outline-danger delete-btn" data-product-id="{{this.item}}" data-cart-id="{{../cartId}}" data-user-id="{{../user._id}}">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {{/each}}
+        <!-- Continue Shopping at Bottom Left -->
+        <div class="text-start mb-4">
+          <a href="/" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-2"></i>Continue Shopping
+          </a>
+        </div>
+        <!-- Order Summary at Bottom Left -->
+        <div class="card cart-summary shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title mb-4">Order Summary</h5>
+            <div class="d-flex justify-content-between mb-2">
+              <span style="color: #2c3e50;">Subtotal</span>
+              <span style="color: #2c3e50;">₹{{cartSummary.subtotal}}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span style="color: #2c3e50;">Shipping</span>
+              <span style="color: #2c3e50;">₹{{cartSummary.shipping}}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span style="color: #2c3e50;">Tax</span>
+              <span style="color: #2c3e50;">₹{{cartSummary.tax}}</span>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between mb-4">
+              <strong style="color: #2c3e50;">Total</strong>
+              <strong style="color: #2c3e50;">₹{{cartSummary.total}}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Shipping Address -->
+<div class="col-lg-4">
+  <div class="summary-shipping-row">
+    <div class="col-12 summary-shipping-col">
+      {{#if savedAddress}}
+        <!-- ✅ Show saved address -->
+        <div class="card shipping-form shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title mb-3" style="color: #2c3e50;">Saved Shipping Address</h5>
+            <p><strong>{{savedAddress.shippingName}}</strong></p>
+            <p>{{savedAddress.shippingAddress1}}, {{savedAddress.shippingAddress2}}</p>
+            <p>{{savedAddress.shippingCity}}, {{savedAddress.shippingState}}, {{savedAddress.shippingPostalCode}}</p>
+            <p>{{savedAddress.shippingCountry}}</p>
+            <!-- ✅ Edit button toggles form -->
+            <button id="editAddressBtn" class="btn btn-outline-secondary mt-3 w-100">Edit Address</button>
+          </div>
+        </div>
+
+        <!-- ✅ Hidden form that appears when editing -->
+        <div class="card shipping-form shadow-sm mt-3" id="editShippingForm" style="display: none;">
+          <div class="card-body">
+            <form method="post" action="" id="shippingForm">
+              <input type="text" name="shippingName" class="form-control mb-2" placeholder="Full Name" value="{{savedAddress.shippingName}}" required>
+              <input type="text" name="shippingAddress1" class="form-control mb-2" placeholder="Address Line 1" value="{{savedAddress.shippingAddress1}}" required>
+              <input type="text" name="shippingAddress2" class="form-control mb-2" placeholder="Address Line 2 (Optional)" value="{{savedAddress.shippingAddress2}}">
+              <input type="text" name="shippingCity" class="form-control mb-2" placeholder="City" value="{{savedAddress.shippingCity}}" required>
+              <input type="text" name="shippingState" class="form-control mb-2" placeholder="State" value="{{savedAddress.shippingState}}" required>
+              <input type="text" name="shippingPostalCode" class="form-control mb-2" placeholder="Postal Code" value="{{savedAddress.shippingPostalCode}}" required>
+              <input type="text" name="shippingCountry" class="form-control mb-2" placeholder="Country" value="{{savedAddress.shippingCountry}}" required>
+              <button type="submit" class="btn btn-outline-secondary w-100">Update Address</button>
+            </form>
+          </div>
+        </div>
+      {{else}}
+        <!-- Form shown if no saved address -->
+        <div class="card shipping-form shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title mb-3" style="color: #2c3e50;">Shipping Address</h5>
+            <form method="post" action="" id="shippingForm">
+              <input type="text" name="shippingName" class="form-control mb-2" placeholder="Full Name" required>
+              <input type="text" name="shippingAddress1" class="form-control mb-2" placeholder="Address Line 1" required>
+              <input type="text" name="shippingAddress2" class="form-control mb-2" placeholder="Address Line 2 (Optional)">
+              <input type="text" name="shippingCity" class="form-control mb-2" placeholder="City" required>
+              <input type="text" name="shippingState" class="form-control mb-2" placeholder="State" required>
+              <input type="text" name="shippingPostalCode" class="form-control mb-2" placeholder="Postal Code" required>
+              <input type="text" name="shippingCountry" class="form-control mb-2" placeholder="Country" required>
+              <button type="submit" class="btn btn-outline-secondary w-100">Save Address</button>
+            </form>
+          </div>
+        </div>
+      {{/if}}
+    </div>
+  </div>
+
+  <a href="/checkout" id="checkoutBtn" class="btn btn-primary w-100 mt-4 {{#unless savedAddress}}disabled{{/unless}}">
+  Proceed to Checkout
+</a>
+</div>
+
+
+    </div>
+  {{/if}}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+  const editBtn = document.getElementById('editAddressBtn');
+  const editForm = document.getElementById('editShippingForm');
+
+  if (editBtn && editForm) {
+    editBtn.addEventListener('click', () => {
+      editForm.style.display = editForm.style.display === 'none' ? 'block' : 'none';
+      editBtn.textContent = editForm.style.display === 'block' ? 'Cancel Edit' : 'Edit Address';
+    });
+  }
+  // Quantity increment/decrement
+  document.querySelectorAll('.increment, .decrement').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const input = this.parentElement.querySelector('.quantity-input');
+      const currentValue = parseInt(input.value);
+      const isIncrement = this.classList.contains('increment');
+      const newQuantity = isIncrement ? currentValue + 1 : Math.max(currentValue - 1, 1);
+      const productId = this.dataset.productId;
+      const cartId = this.dataset.cartId;
+      const userId = this.dataset.userId;
+
+      if (!cartId || !userId || !productId) {
+        console.error('Missing data, cartId:', cartId, 'userId:', userId, 'productId:', productId);
+        return;
+      }
+
+      input.value = newQuantity;
+
+      axios.post('/change-product-quantity', {
+        cart: cartId,
+        product: productId,
+        count: isIncrement ? 1 : -1,
+        userId: userId
+      }, {
+        headers: { 'Content-Type': 'application/json' }
+      }).then(response => {
+        if (response.data.success) {
+          input.value = response.data.quantity;
+        } else {
+          input.value = currentValue;
+          console.error('Error updating quantity:', response.data.error);
+        }
+      }).catch(err => {
+        input.value = currentValue;
+        console.error('Error updating quantity:', err.response ? err.response.data : err.message);
+      });
+    });
+  });
+
+  // Product delete from cart
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const productId = this.dataset.productId;
+      const cartId = this.dataset.cartId;
+      const userId = this.dataset.userId;
+
+      if (!cartId || !userId || !productId) {
+        console.error('Missing data');
+        return;
+      }
+
+      if (confirm('Are you sure you want to remove this item?')) {
+        axios.post('/remove-cart-product', {
+          cart: cartId,
+          product: productId,
+          userId: userId
+        }, {
+          headers: { 'Content-Type': 'application/json' }
+        }).then(response => {
+          if (response.data.success) {
+            this.closest('.cart-item').remove();
+            location.reload();
+          } else {
+            console.error('Remove failed:', response.data.error);
+          }
+        }).catch(err => {
+          console.error('Remove failed:', err.response ? err.response.data : err.message);
+        });
+      }
+    });
+  });
+
+  // ✅ Save Shipping Address Handling
+  const checkoutBtn = document.getElementById('checkoutBtn');
+  const shippingForm = document.getElementById('shippingForm');
+
+  if (shippingForm) {
+    shippingForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(shippingForm);
+      const data = Object.fromEntries(formData);
+
+      try {
+        const response = await axios.post('/save-shipping-address', data, {
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (response.data.status) {
+          alert('Shipping address saved successfully!');
+          checkoutBtn.disabled = false;
+          window.location.reload(); // Refresh page to show saved address
+        } else {
+          alert('Failed to save address: ' + response.data.error);
+        }
+      } catch (err) {
+        console.error('Save address error:', err);
+        alert('An error occurred while saving the address.');
+      }
+    });
+  }
+</script>

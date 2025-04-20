@@ -1,0 +1,43 @@
+<section>
+  <div class="container mt-4">
+    <div class="row">
+      <div class="col-md-6 d-grid gap-2 col-6 mx-auto">
+        <h2 class="text-center">Edit Product</h2>
+        <form action="/admin/edit-product/{{product._id}}" method="post" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="Name" class="form-label">Name</label>
+            <input type="text" class="form-control" name="Name" value="{{product.Name}}" required>
+          </div>
+          <div class="mb-3">
+            <label for="Category" class="form-label">Category</label>
+            <input type="text" class="form-control" name="Category" value="{{product.Category}}" required>
+          </div>
+          <div class="mb-3">
+            <label for="Price" class="form-label">Price</label>
+            <input type="number" class="form-control" name="Price" value="{{product.Price}}" required>
+          </div>
+          <div class="mb-3">
+            <label for="Description" class="form-label">Description</label>
+            <textarea class="form-control" name="Description" required>{{product.Description}}</textarea>
+          </div>
+          <div class="mb-3">
+            <label for="Image" class="form-label">Image</label>
+            {{#if product.Image}}
+              <img src="/product-images/{{product.Image}}" style="width: 100px; height: auto;" alt="" id="imgView">
+            {{else}}
+              <img src="/product-images/{{product._id}}.jpg" style="width: 100px; height: auto;" alt="" id="imgView" onerror="this.style.display='none';">
+            {{/if}}
+            <input type="file" class="form-control" name="Image" onchange="viewImage(event)">
+          </div>
+          <button type="submit" class="btn btn-primary d-grid gap-2 col-6 mx-auto">Submit</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+    function viewImage(event) {
+        document.getElementById('imgView').src = URL.createObjectURL(event.target.files[0]);
+    }
+</script>

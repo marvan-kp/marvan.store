@@ -1,0 +1,397 @@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8f9fa;
+  }
+
+  .order-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+  }
+
+  .payment-option {
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: border-color 0.3s;
+  }
+
+  .payment-option:hover, .payment-option input:checked + label {
+    border-color: #3498db;
+  }
+  .payment-option input[type="radio"]:checked + span {
+  font-weight: 600;
+  color: #3498db;
+}
+
+
+  .place-order-btn {
+    background: linear-gradient(135deg, #3498db, #2c80b4);
+    border: none;
+    color: white;
+    padding: 0.75rem;
+    border-radius: 12px;
+    font-weight: 600;
+    width: 100%;
+    transition: all 0.3s ease;
+  }
+
+  .place-order-btn:hover {
+    background: linear-gradient(135deg, #2c80b4, #3498db);
+    transform: translateY(-2px);
+  }
+  .payment-option-box {
+  position: relative;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #fff;
+  display: flex;
+  align-items: center;
+}
+
+.payment-option-box input[type="radio"] {
+  display: none;
+}
+
+.payment-option-box .option-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.payment-option-box .icon {
+  width: 32px;
+  height: 32px;
+}
+
+.payment-option-box:hover {
+  border-color: #3498db;
+}
+
+.payment-option-box input[type="radio"]:checked + .option-content {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.payment-option-box input[type="radio"]:checked ~ .option-content {
+  border-color: #3498db;
+}
+
+.payment-option-box input[type="radio"]:checked ~ .option-content::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid #3498db;
+  border-radius: 12px;
+  animation: pulse-border 0.5s ease-out;
+}
+
+@keyframes pulse-border {
+  0% {
+    box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 8px rgba(52, 152, 219, 0);
+  }
+}
+.payment-option-box {
+  position: relative;
+  border: 2px solid #e0e0e0;
+  border-radius: 14px;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  background: #ffffff;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.04);
+}
+
+.payment-option-box:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 12px rgba(52, 152, 219, 0.15);
+  border-color: #3498db;
+}
+
+.payment-option-box input[type="radio"] {
+  display: none;
+}
+
+.payment-option-box .option-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.payment-option-box .icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.payment-option-box input[type="radio"]:checked + .option-content {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.payment-option-box input[type="radio"]:checked + .option-content {
+  animation: bounceSelect 0.3s ease;
+  border-left: 4px solid #3498db;
+}
+
+@keyframes bounceSelect {
+  0% {
+    transform: scale(0.95);
+  }
+  60% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@media (max-width: 576px) {
+  .payment-option-box {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+  }
+
+  .payment-option-box .option-content {
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .payment-option-box .icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .place-order-btn {
+    font-size: 16px;
+    padding: 0.6rem;
+  }
+}
+
+
+  .spinner-border {
+    width: 3rem;
+    height: 3rem;
+  }
+</style>
+
+<div class="container py-5">
+  <div class="row g-4">
+    <!-- Shipping Address -->
+    <div class="col-md-6">
+      <div class="order-card">
+        <h4 class="section-title"><i class="bi bi-geo-alt-fill me-2"></i>Shipping Address</h4>
+        {{#if savedAddress}}
+          <p><strong>{{savedAddress.shippingName}}</strong></p>
+          <p>{{savedAddress.shippingAddress1}}, {{savedAddress.shippingAddress2}}</p>
+          <p>{{savedAddress.shippingCity}}, {{savedAddress.shippingState}} - {{savedAddress.shippingPostalCode}}</p>
+          <p>{{savedAddress.shippingCountry}}</p>
+        {{else}}
+          <div class="alert alert-warning">No saved address. <a href="/cart">Add one in cart</a>.</div>
+        {{/if}}
+      </div>
+    </div>
+
+    <!-- Order Summary + Payment -->
+    <div class="col-md-6">
+      <div class="order-card">
+        <h4 class="section-title"><i class="bi bi-credit-card-2-front me-2"></i>Payment Method</h4>
+
+        <form id="orderForm">
+         <div class="payment-options d-flex flex-column gap-3">
+  <label class="payment-option-box">
+    <input type="radio" name="paymentMethod" value="COD" checked>
+    <div class="option-content">
+      <img src="/public/img/cod.png" alt="COD" class="icon">
+      <span>Cash on Delivery</span>
+    </div>
+  </label>
+
+  <label class="payment-option-box">
+    <input type="radio" name="paymentMethod" value="RAZORPAY">
+    <div class="option-content">
+      <a href="https://razorpay.com/" target="_blank"> <img referrerpolicy="origin" src = "https://badges.razorpay.com/badge-dark.png " style = "height: 45px; width: 113px;" alt = "Razorpay | Payment Gateway | Neobank"></a>
+      <span>Pay with Razorpay</span>
+    </div>
+  </label>
+</div>
+
+
+
+
+          <!-- Order Summary -->
+          <hr class="my-4">
+          <ul class="list-group mb-4">
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Subtotal</span>
+              <strong>₹{{cartSummary.subtotal}}</strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Shipping</span>
+              <strong>₹{{cartSummary.shipping}}</strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Tax</span>
+              <strong>₹{{cartSummary.tax}}</strong>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+              <strong>Total</strong>
+              <strong>₹{{cartSummary.total}}</strong>
+            </li>
+          </ul>
+
+          <button type="submit" class="btn btn-primary place-order-btn">Place Order</button>
+          <a href="/cart" class="btn btn-secondary mt-2 w-100">Back to Cart</a>
+          <a href="/orders" class="btn btn-secondary mt-2 w-100">View My Orders</a>
+          <a href="/" class="btn btn-secondary mt-2 w-100">Continue Shopping</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Order Success Modal -->
+<div class="modal fade" id="orderSuccessModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-4 text-center">
+      <h4 class="text-success">✅ Order Placed!</h4>
+      <p>Your order has been placed successfully.</p>
+      <a href="/orders" class="btn btn-primary mt-3">View Orders</a>
+    </div>
+  </div>
+</div>
+
+<!-- Spinner Overlay -->
+<div id="loadingOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:rgba(255,255,255,0.8);text-align:center;padding-top:200px;">
+  <div class="spinner-border text-primary"></div>
+  <p class="mt-3">Placing your order...</p>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  document.getElementById('orderForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.style.display = 'block';
+
+    try {
+      if (paymentMethod === 'COD') {
+        const res = await axios.post('/submit-order', { paymentMethod });
+        overlay.style.display = 'none';
+        if (res.data.status) {
+          new bootstrap.Modal(document.getElementById('orderSuccessModal')).show();
+        }
+      }
+
+      if (paymentMethod === 'RAZORPAY') {
+        const init = await axios.post('/create-razorpay-order');
+        const { key, orderId, amount } = init.data;
+
+        const options = {
+          key,
+          amount,
+          currency: "INR",
+          name: "Your Shop",
+          description: "Secure Payment",
+          order_id: orderId,
+          handler: async function (response) {
+            const res = await axios.post('/submit-order', {
+              paymentMethod: 'RAZORPAY',
+              razorpayPaymentId: response.razorpay_payment_id
+            });
+            overlay.style.display = 'none';
+            if (res.data.status) {
+              new bootstrap.Modal(document.getElementById('orderSuccessModal')).show();
+            }
+          },
+          prefill: {
+            name: "{{user.Name}}",
+            email: "{{user.Email}}"
+          },
+          theme: { color: "#3498db" }
+        };
+
+        overlay.style.display = 'none';
+        new Razorpay(options).open();
+      }
+    } catch (err) {
+      overlay.style.display = 'none';
+      alert('Order failed: ' + (err.response?.data?.error || err.message));
+    }
+  });
+</script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  async function payWithRazorpay() {
+    const res = await fetch('/create-razorpay-order', {
+      method: 'POST',
+    });
+    const data = await res.json();
+
+    if (!data.status) {
+      alert("Unable to create Razorpay order.");
+      return;
+    }
+
+    const options = {
+      key: "<%= process.env.RAZORPAY_KEY_ID %>",
+      amount: data.order.amount,
+      currency: data.order.currency,
+      name: "Your Store Name",
+      description: "Order Payment",
+      order_id: data.order.id,
+      handler: async function (response) {
+        const result = await fetch('/submit-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            paymentMethod: 'RAZORPAY',
+            razorpayPaymentId: response.razorpay_payment_id,
+          }),
+        });
+        const confirm = await result.json();
+        if (confirm.status) {
+          window.location.href = '/thank-you';
+        } else {
+          alert("Payment verification failed.");
+        }
+      },
+      prefill: {
+        name: "<%= user.name %>",
+        email: "<%= user.email %>",
+        contact: "<%= user.phone %>"
+      },
+      theme: { color: "#3399cc" }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+  }
+</script>
+
+<button onclick="payWithRazorpay()">Pay with Razorpay</button>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>

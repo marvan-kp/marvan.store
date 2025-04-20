@@ -1,0 +1,32 @@
+{
+  "name": "shoppiing-cart",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon ./bin/www"
+  },
+  "dependencies": {
+    "@handlebars/allow-prototype-access": "^1.0.5",
+    "bcrypt": "^5.1.1",
+    "bootstrap": "^5.3.5",
+    "cookie-parser": "~1.4.4",
+    "datatables.net-dt": "^2.2.2",
+    "debug": "~2.6.9",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "express-fileupload": "^1.5.1",
+    "express-handlebars": "^8.0.2",
+    "express-session": "^1.18.1",
+    "hbs": "^4.2.0",
+    "http-errors": "~1.6.3",
+    "mongodb": "^6.15.0",
+    "morgan": "~1.9.1",
+    "multer": "^1.4.5-lts.2",
+    "nodemon": "^3.1.9",
+    "razorpay": "^2.9.6",
+    "tablesort": "^5.5.0"
+  },
+  "devDependencies": {
+    "tailwindcss": "^4.1.4"
+  }
+}

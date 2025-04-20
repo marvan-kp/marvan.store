@@ -1,0 +1,245 @@
+<div class="order-container">
+  <h1 class="order-title">Your Order Journey</h1>
+
+  {{#if error}}
+    <div class="error-message">
+      <p>{{error}}</p>
+    </div>
+  {{/if}}
+
+  {{#if orders.length}}
+    <div class="order-grid">
+      {{#each orders}}
+        <div class="order-card">
+          <div class="card-header">
+            <h2>Order #{{this._id}}</h2>
+            <span class="status-tag
+              {{#ifEquals this.status 'Delivered'}}
+                delivered
+              {{else ifEquals this.status 'Pending'}}
+                pending
+              {{else}}
+                default
+              {{/ifEquals}}">
+              {{this.status}}
+            </span>
+          </div>
+          <div class="card-content">
+            <p><strong>Date:</strong> {{formatDate this.date}}</p>
+            <p><strong>Total:</strong> <span class="total-amount">₹{{this.totalAmount}}</span></p>
+            <div class="product-section">
+              <h3>Products:</h3>
+              <ul>
+                {{#each this.products}}
+                  <li class="product-item">
+                    <span class="product-info">
+                      {{#if this.image}}
+                        <img src="/product-images/{{this.image}}" alt="{{this.product.Name}}" class="product-image">
+                      {{else}}
+                        <div class="no-image">No Image</div>
+                      {{/if}}
+                      {{this.product.Name}} <span class="quantity">x{{this.quantity}}</span>
+                    </span>
+                    <span class="product-price">₹{{multiply this.product.Price this.quantity}}</span>
+                  </li>
+                {{/each}}
+              </ul>
+            </div>
+          </div>
+        </div>
+      {{/each}}
+    </div>
+  {{else}}
+    <div class="no-orders-message">
+      <p>No orders yet</p>
+    </div>
+  {{/if}}
+</div>
+
+<style>
+  .order-container {
+    padding: 60px 20px 20px;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    font-family: 'Arial', sans-serif;
+  }
+
+  .order-title {
+    text-align: center;
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    animation: fadeIn 0.8s ease-in-out;
+  }
+
+  .error-message {
+    background-color: #ffebee;
+    border-left: 6px solid #f44336;
+    color: #c62828;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    margin: 0 auto 30px;
+    max-width: 600px;
+    animation: slideIn 0.6s ease-out;
+  }
+
+  .order-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .order-card {
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .order-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .card-header {
+    padding: 20px;
+    background: linear-gradient(90deg, #3498db, #8e44ad);
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .card-header h2 {
+    font-size: 1.3rem;
+    margin: 0;
+  }
+
+  .status-tag {
+    padding: 5px 12px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+  }
+
+  .status-tag.delivered {
+    background-color: #2ecc71;
+    color: #fff;
+  }
+
+  .status-tag.pending {
+    background-color: #f1c40f;
+    color: #fff;
+  }
+
+  .status-tag.default {
+    background-color: #ecf0f1;
+    color: #7f8c8d;
+  }
+
+  .card-content {
+    padding: 20px;
+    color: #2c3e50;
+  }
+
+  .card-content p {
+    margin: 8px 0;
+    font-size: 1rem;
+  }
+
+  .total-amount {
+    color: #27ae60;
+    font-weight: 600;
+  }
+
+  .product-section h3 {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    color: #34495e;
+  }
+
+  .product-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  .product-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .product-image {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+  }
+
+  .no-image {
+    width: 40px;
+    height: 40px;
+    background: #ecf0f1;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #95a5a6;
+    font-size: 0.7rem;
+  }
+
+  .quantity {
+    color: #7f8c8d;
+  }
+
+  .product-price {
+    font-weight: 500;
+    color: #2c3e50;
+  }
+
+  .no-orders-message {
+    background-color: #e8f4f8;
+    border-left: 6px solid #3498db;
+    color: #2980b9;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    margin: 0 auto;
+    max-width: 500px;
+    animation: fadeIn 0.8s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideIn {
+    from { transform: translateX(-20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  @media (min-width: 640px) {
+    .order-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .order-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

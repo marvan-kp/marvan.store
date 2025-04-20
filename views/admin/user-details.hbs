@@ -1,0 +1,90 @@
+<div class="container py-5">
+    <h2 class="mb-4 text-center">User Details</h2>
+    {{#if error}}
+        <div class="alert alert-danger">{{error}}</div>
+    {{else}}
+        {{#if user}}
+            <div class="card p-4 shadow-sm">
+                <h5 class="mb-3">User Profile</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>User ID:</strong> {{user._id}}</p>
+                        <p><strong>Email:</strong> {{user.Email}}</p>
+                        <p><strong>Name:</strong> {{user.Name}}</p>
+                        <p><strong>Phone:</strong> {{user.Phone}}</p>
+                        {{#if user.createdAt}}
+                            <p><strong>Registration Date:</strong> {{formatDate user.createdAt}}</p>
+                        {{else}}
+                            <p><em>Registration date not available</em></p>
+                        {{/if}}
+                    </div>
+                    <div class="col-md-6">
+                        {{#if user.shippingAddress}}
+                            <h6>Current Shipping Address:</h6>
+                            <p>{{user.shippingAddress.shippingName}}</p>
+                            <p>{{user.shippingAddress.shippingAddress1}}, {{user.shippingAddress.shippingAddress2}}</p>
+                            <p>{{user.shippingAddress.shippingCity}}, {{user.shippingAddress.shippingState}} - {{user.shippingAddress.shippingPostalCode}}</p>
+                            <p>{{user.shippingAddress.shippingCountry}}</p>
+                        {{else}}
+                            <p><em>No shipping address available</em></p>
+                        {{/if}}
+                        {{#if user.addressHistory}}
+                            <h6 class="mt-3">Address History:</h6>
+                            <ul class="list-group">
+                                {{#each user.addressHistory}}
+                                    <li class="list-group-item">
+                                        <p>{{this.shippingName}}</p>
+                                        <p>{{this.shippingAddress1}}, {{this.shippingAddress2}}</p>
+                                        <p>{{this.shippingCity}}, {{this.shippingState}} - {{this.shippingPostalCode}}</p>
+                                        <p>{{this.shippingCountry}}</p>
+                                    </li>
+                                {{/each}}
+                            </ul>
+                        {{else}}
+                            <p class="mt-2"><em>No address history available</em></p>
+                        {{/if}}
+                    </div>
+                </div>
+            </div>
+
+            {{#if orders.length}}
+                <div class="card mt-4 p-4 shadow-sm">
+                    <h5 class="mb-3">Order History</h5>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Total</th>
+                                <th>Products</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each orders}}
+                                <tr>
+                                    <td>{{this._id}}</td>
+                                    <td>{{this.status}}</td>
+                                    <td>{{formatDate this.date}}</td>
+                                    <td>₹{{this.totalAmount}}</td>
+                                    <td>
+                                        <ul class="list-unstyled">
+                                            {{#each this.products}}
+                                                <li>{{this.product.Name}} x{{this.quantity}}</li>
+                                            {{/each}}
+                                        </ul>
+                                    </td>
+                                </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            {{else}}
+                <div class="alert alert-info mt-4">No orders found for this user</div>
+            {{/if}}
+        {{else}}
+            <div class="alert alert-warning">No user data available</div>
+        {{/if}}
+    {{/if}}
+    <a href="/admin/users" class="btn btn-secondary mt-3">Back to Users</a>
+</div>

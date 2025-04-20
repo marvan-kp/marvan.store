@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signup</title>
+  <!-- MDB CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.css" rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+</head>
+<body>
+  <section class="vh-100" style="background-color: #eee;">
+    <div class="container h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-lg-12 col-xl-11">
+          <div class="card text-black" style="border-radius: 25px;">
+            <div class="card-body p-md-5">
+              <div class="row justify-content-center">
+                <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
+                  <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Sign Up</p>
+                  <form action="/signup" method="post" class="mx-1 mx-md-4 needs-validation" novalidate>
+                    <!-- Name -->
+                    <div class="d-flex flex-row align-items-center mb-4">
+                      <i class="fas fa-user fa-lg me-3 fa-fw"></i>
+                      <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                        <input type="text" id="form3Example1c" name="Name" class="form-control" required />
+                        <label class="form-label" for="form3Example1c">Your Name</label>
+                        <div class="invalid-feedback">Please provide your name.</div>
+                      </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="d-flex flex-row align-items-center mb-4">
+                      <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
+                      <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                        <input type="email" id="form3Example3c" name="Email" class="form-control" required />
+                        <label class="form-label" for="form3Example3c">Your Email</label>
+                        <div class="invalid-feedback">Please provide a valid email address.</div>
+                      </div>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="d-flex flex-row align-items-center mb-4">
+                      <i class="fas fa-phone fa-lg me-3 fa-fw"></i>
+                      <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                        <input type="tel" id="form3Example3d" name="Phone" class="form-control" pattern="[0-9]{10}" required />
+                        <label class="form-label" for="form3Example3d">Phone Number</label>
+                        <div class="invalid-feedback">Please provide a 10-digit phone number.</div>
+                      </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="d-flex flex-row align-items-center mb-4">
+                      <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
+                      <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                        <input type="password" id="form3Example4c" name="Password" class="form-control" required />
+                        <label class="form-label" for="form3Example4c">Password</label>
+                        <div class="invalid-feedback">Please provide a password.</div>
+                      </div>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="d-flex flex-row align-items-center mb-4">
+                      <i class="fas fa-key fa-lg me-3 fa-fw"></i>
+                      <div data-mdb-input-init class="form-outline flex-fill mb-0">
+                        <input type="password" id="form3Example4cd" name="Cnfm-pswd" class="form-control" required />
+                        <label class="form-label" for="form3Example4cd">Repeat your password</label>
+                        <div class="invalid-feedback">Passwords do not match.</div>
+                      </div>
+                    </div>
+
+                    <!-- Terms Checkbox -->
+                    <div class="form-check d-flex justify-content-center mb-5">
+                      <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3c" required />
+                      <label class="form-check-label" for="form2Example3c">
+                        I agree all statements in <a href="#!">Terms of service</a>
+                      </label>
+                      <div class="invalid-feedback">You must agree to the terms.</div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
+                      <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg">Register</button>
+                    </div>
+                  </form>
+                </div>
+                <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
+                  <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-registration/draw1.webp"
+                    class="img-fluid" alt="Sample image">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MDB JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.js"></script>
+  <script>
+    // Bootstrap/MDB Validation
+    (function () {
+      'use strict';
+      var forms = document.querySelectorAll('.needs-validation');
+      Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+          const password = document.getElementById('form3Example4c').value;
+          const confirmPassword = document.getElementById('form3Example4cd').value;
+          const confirmPasswordInput = document.getElementById('form3Example4cd');
+
+          if (password !== confirmPassword) {
+            event.preventDefault();
+            event.stopPropagation();
+            confirmPasswordInput.classList.add('is-invalid');
+          } else {
+            confirmPasswordInput.classList.remove('is-invalid');
+            confirmPasswordInput.classList.add('is-valid');
+          }
+
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<section>
+  <div class="container mt-4">
+    <div class="row">
+      <div class="col-md-6 d-grid gap-2 col-6 mx-auto">
+        <h2 class="text-center">Add Product</h2>
+        <form action="/admin/add-product" method="post" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="Name" class="form-label">Name</label>
+            <input type="text" class="form-control" name="Name" required>
+          </div>
+          <div class="mb-3">
+            <label for="Category" class="form-label">Category</label>
+            <input type="text" class="form-control" name="Category" required>
+          </div>
+          <div class="mb-3">
+            <label for="Price" class="form-label">Price</label>
+            <input type="number" class="form-control" name="Price" required>
+          </div>
+          <div class="mb-3">
+            <label for="Description" class="form-label">Description</label>
+            <textarea class="form-control" name="Description" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="Image" class="form-label">Image</label>
+            <input type="file" class="form-control" name="Image" onchange="viewImage(event)">
+            <img id="imgView" style="width: 100px; height: auto; display: none;" alt="">
+          </div>
+          <button type="submit" class="btn btn-primary d-grid gap-2 col-6 mx-auto">Submit</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+    function viewImage(event) {
+        const imgView = document.getElementById('imgView');
+        imgView.src = URL.createObjectURL(event.target.files[0]);
+        imgView.style.display = 'block';
+    }
+</script>
