@@ -137,8 +137,14 @@
             <div class="row align-items-center">
               <!-- Product Image -->
               <div class="col-md-3 text-center">
-                <img src="/product-images/{{this.product._id}}.jpg" alt="{{this.product.Name}}"
-                  class="img-fluid rounded">
+                <!-- Fallback to Image field if available, otherwise use _id -->
+                {{#if this.product.Image}}
+                  <img src="/product-images/{{this.product.Image}}" alt="{{this.product.Name}}"
+                    class="img-fluid rounded" onerror="console.log('Image failed to load for product ID: {{this.product._id}}, Image: {{this.product.Image}}'); this.src='/images/placeholder.jpg'; this.onerror=null;">
+                {{else}}
+                  <img src="/product-images/{{this.product._id}}.jpg" alt="{{this.product.Name}}"
+                    class="img-fluid rounded" onerror="console.log('Image failed to load for product ID: {{this.product._id}}'); this.src='/images/placeholder.jpg'; this.onerror=null;">
+                {{/if}}
               </div>
 
               <!-- Product Info -->
@@ -199,65 +205,63 @@
       </div>
 
       <!-- Right: Shipping Address -->
-<div class="col-lg-4">
-  <div class="summary-shipping-row">
-    <div class="col-12 summary-shipping-col">
-      {{#if savedAddress}}
-        <!-- ✅ Show saved address -->
-        <div class="card shipping-form shadow-sm">
-          <div class="card-body">
-            <h5 class="card-title mb-3" style="color: #2c3e50;">Saved Shipping Address</h5>
-            <p><strong>{{savedAddress.shippingName}}</strong></p>
-            <p>{{savedAddress.shippingAddress1}}, {{savedAddress.shippingAddress2}}</p>
-            <p>{{savedAddress.shippingCity}}, {{savedAddress.shippingState}}, {{savedAddress.shippingPostalCode}}</p>
-            <p>{{savedAddress.shippingCountry}}</p>
-            <!-- ✅ Edit button toggles form -->
-            <button id="editAddressBtn" class="btn btn-outline-secondary mt-3 w-100">Edit Address</button>
+      <div class="col-lg-4">
+        <div class="summary-shipping-row">
+          <div class="col-12 summary-shipping-col">
+            {{#if savedAddress}}
+              <!-- ✅ Show saved address -->
+              <div class="card shipping-form shadow-sm">
+                <div class="card-body">
+                  <h5 class="card-title mb-3" style="color: #2c3e50;">Saved Shipping Address</h5>
+                  <p><strong>{{savedAddress.shippingName}}</strong></p>
+                  <p>{{savedAddress.shippingAddress1}}, {{savedAddress.shippingAddress2}}</p>
+                  <p>{{savedAddress.shippingCity}}, {{savedAddress.shippingState}}, {{savedAddress.shippingPostalCode}}</p>
+                  <p>{{savedAddress.shippingCountry}}</p>
+                  <!-- ✅ Edit button toggles form -->
+                  <button id="editAddressBtn" class="btn btn-outline-secondary mt-3 w-100">Edit Address</button>
+                </div>
+              </div>
+
+              <!-- ✅ Hidden form that appears when editing -->
+              <div class="card shipping-form shadow-sm mt-3" id="editShippingForm" style="display: none;">
+                <div class="card-body">
+                  <form method="post" action="" id="shippingForm">
+                    <input type="text" name="shippingName" class="form-control mb-2" placeholder="Full Name" value="{{savedAddress.shippingName}}" required>
+                    <input type="text" name="shippingAddress1" class="form-control mb-2" placeholder="Address Line 1" value="{{savedAddress.shippingAddress1}}" required>
+                    <input type="text" name="shippingAddress2" class="form-control mb-2" placeholder="Address Line 2 (Optional)" value="{{savedAddress.shippingAddress2}}">
+                    <input type="text" name="shippingCity" class="form-control mb-2" placeholder="City" value="{{savedAddress.shippingCity}}" required>
+                    <input type="text" name="shippingState" class="form-control mb-2" placeholder="State" value="{{savedAddress.shippingState}}" required>
+                    <input type="text" name="shippingPostalCode" class="form-control mb-2" placeholder="Postal Code" value="{{savedAddress.shippingPostalCode}}" required>
+                    <input type="text" name="shippingCountry" class="form-control mb-2" placeholder="Country" value="{{savedAddress.shippingCountry}}" required>
+                    <button type="submit" class="btn btn-outline-secondary w-100">Update Address</button>
+                  </form>
+                </div>
+              </div>
+            {{else}}
+              <!-- Form shown if no saved address -->
+              <div class="card shipping-form shadow-sm">
+                <div class="card-body">
+                  <h5 class="card-title mb-3" style="color: #2c3e50;">Shipping Address</h5>
+                  <form method="post" action="" id="shippingForm">
+                    <input type="text" name="shippingName" class="form-control mb-2" placeholder="Full Name" required>
+                    <input type="text" name="shippingAddress1" class="form-control mb-2" placeholder="Address Line 1" required>
+                    <input type="text" name="shippingAddress2" class="form-control mb-2" placeholder="Address Line 2 (Optional)">
+                    <input type="text" name="shippingCity" class="form-control mb-2" placeholder="City" required>
+                    <input type="text" name="shippingState" class="form-control mb-2" placeholder="State" required>
+                    <input type="text" name="shippingPostalCode" class="form-control mb-2" placeholder="Postal Code" required>
+                    <input type="text" name="shippingCountry" class="form-control mb-2" placeholder="Country" required>
+                    <button type="submit" class="btn btn-outline-secondary w-100">Save Address</button>
+                  </form>
+                </div>
+              </div>
+            {{/if}}
           </div>
         </div>
 
-        <!-- ✅ Hidden form that appears when editing -->
-        <div class="card shipping-form shadow-sm mt-3" id="editShippingForm" style="display: none;">
-          <div class="card-body">
-            <form method="post" action="" id="shippingForm">
-              <input type="text" name="shippingName" class="form-control mb-2" placeholder="Full Name" value="{{savedAddress.shippingName}}" required>
-              <input type="text" name="shippingAddress1" class="form-control mb-2" placeholder="Address Line 1" value="{{savedAddress.shippingAddress1}}" required>
-              <input type="text" name="shippingAddress2" class="form-control mb-2" placeholder="Address Line 2 (Optional)" value="{{savedAddress.shippingAddress2}}">
-              <input type="text" name="shippingCity" class="form-control mb-2" placeholder="City" value="{{savedAddress.shippingCity}}" required>
-              <input type="text" name="shippingState" class="form-control mb-2" placeholder="State" value="{{savedAddress.shippingState}}" required>
-              <input type="text" name="shippingPostalCode" class="form-control mb-2" placeholder="Postal Code" value="{{savedAddress.shippingPostalCode}}" required>
-              <input type="text" name="shippingCountry" class="form-control mb-2" placeholder="Country" value="{{savedAddress.shippingCountry}}" required>
-              <button type="submit" class="btn btn-outline-secondary w-100">Update Address</button>
-            </form>
-          </div>
-        </div>
-      {{else}}
-        <!-- Form shown if no saved address -->
-        <div class="card shipping-form shadow-sm">
-          <div class="card-body">
-            <h5 class="card-title mb-3" style="color: #2c3e50;">Shipping Address</h5>
-            <form method="post" action="" id="shippingForm">
-              <input type="text" name="shippingName" class="form-control mb-2" placeholder="Full Name" required>
-              <input type="text" name="shippingAddress1" class="form-control mb-2" placeholder="Address Line 1" required>
-              <input type="text" name="shippingAddress2" class="form-control mb-2" placeholder="Address Line 2 (Optional)">
-              <input type="text" name="shippingCity" class="form-control mb-2" placeholder="City" required>
-              <input type="text" name="shippingState" class="form-control mb-2" placeholder="State" required>
-              <input type="text" name="shippingPostalCode" class="form-control mb-2" placeholder="Postal Code" required>
-              <input type="text" name="shippingCountry" class="form-control mb-2" placeholder="Country" required>
-              <button type="submit" class="btn btn-outline-secondary w-100">Save Address</button>
-            </form>
-          </div>
-        </div>
-      {{/if}}
-    </div>
-  </div>
-
-  <a href="/checkout" id="checkoutBtn" class="btn btn-primary w-100 mt-4 {{#unless savedAddress}}disabled{{/unless}}">
-  Proceed to Checkout
-</a>
-</div>
-
-
+        <a href="/checkout" id="checkoutBtn" class="btn btn-primary w-100 mt-4 {{#unless savedAddress}}disabled{{/unless}}">
+          Proceed to Checkout
+        </a>
+      </div>
     </div>
   {{/if}}
 </div>
