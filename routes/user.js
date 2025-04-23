@@ -11,10 +11,13 @@ const razorpayInstance = require('../config/razorpay');
 router.userHelpers = userHelpers;
 
 const verifyLogin = (req, res, next) => {
-    if (req.session.loggedIn) {
+    console.log('verifyLogin middleware: session.loggedIn =', req.session.loggedIn, 'session.user =', req.session.user);
+    if (req.session.loggedIn && req.session.user) {
         next();
     } else {
-        res.redirect('/login');
+        const redirectUrl = req.originalUrl || '/';
+        console.log('User not logged in, redirecting to /login with redirectUrl:', redirectUrl);
+        res.redirect(`/login?redirect=${encodeURIComponent(redirectUrl)}`);
     }
 };
 
@@ -63,17 +66,21 @@ router.get('/', async function (req, res) {
     }
 
     productHelpers.getAllProducts().then((products) => {
+        console.log('Rendering view-products, user:', user);
         res.render('user/view-products', { products, user, cartCount });
     });
 });
 
 router.get('/login', (req, res) => {
-    if (req.session.loggedIn) {
+    if (req.session.loggedIn && req.session.user) {
+        console.log('User already logged in, redirecting to /');
         res.redirect('/');
     } else {
+        console.log('Rendering login page with redirect:', req.query.redirect);
         res.render('user/login', {
             usernameErr: req.session.usernameErr,
             passwordErr: req.session.passwordErr,
+            redirect: req.query.redirect || '/'
         });
         req.session.usernameErr = false;
         req.session.passwordErr = false;
@@ -81,7 +88,7 @@ router.get('/login', (req, res) => {
 });
 
 router.get('/signup', (req, res) => {
-    if (req.session.loggedIn) {
+    if (req.session.loggedIn && req.session.user) {
         res.redirect('/');
     } else {
         res.render('user/signup');
@@ -107,23 +114,28 @@ router.post('/login', (req, res) => {
             if (response.status) {
                 req.session.loggedIn = true;
                 req.session.user = response.user;
-                res.redirect('/');
+                const redirectUrl = req.query.redirect || '/';
+                console.log('Login successful, redirecting to:', redirectUrl);
+                res.redirect(decodeURIComponent(redirectUrl));
             } else {
                 if (response.errorType === 'username') {
                     req.session.usernameErr = true;
                 } else if (response.errorType === 'password') {
                     req.session.passwordErr = true;
                 }
-                res.redirect('/login');
+                const redirectUrl = req.query.redirect || '/';
+                res.redirect(`/login?redirect=${encodeURIComponent(redirectUrl)}`);
             }
         })
         .catch((err) => {
             console.error('Login error:', err);
-            res.redirect('/login');
+            const redirectUrl = req.query.redirect || '/';
+            res.redirect(`/login?redirect=${encodeURIComponent(redirectUrl)}`);
         });
 });
 
 router.get('/logout', (req, res) => {
+    console.log('Logging out, destroying session');
     req.session.destroy();
     res.redirect('/');
 });
@@ -172,6 +184,7 @@ router.get('/cart', verifyLogin, async (req, res) => {
 });
 
 router.get('/add-to-cart/:id', verifyLogin, async (req, res) => {
+    console.log('Add to cart route hit for product ID:', req.params.id, 'by user:', req.session.user?._id);
     try {
         await userHelpers.addToCart(req.params.id, req.session.user._id);
         res.json({ status: true });
