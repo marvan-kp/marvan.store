@@ -1,19 +1,22 @@
 <section>
   <div class="container mt-4">
-    <div class="row justify-content-center">
+    <div class="row">
       {{#each products}}
-      <div class="col-6 col-md-3 p-2 d-flex justify-content-center">
-        <div class="card product-card" style="width: 100%; max-width: 250px; height: 24rem; border: none; border-radius: 15px; background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); transition: transform 0.3s ease, box-shadow 0.3s ease; overflow: hidden;">
-          <div class="image-container" style="height: 45%; padding: 10px;">
-            <img src="{{#if Image}}/product-images/{{Image}}{{else}}/product-images/{{_id}}.jpg{{/if}}" class="card-img-top cart-image" style="width: 100%; height: 100%; object-fit: contain; border-radius: 15px 15px 0 0;" alt="{{Name}}" onerror="this.style.display='none';">
+      <div class="col-6 col-md-3 p-2">
+        <div class="card product-card" style="width: 100%; height: 24rem; border: none; border-radius: 15px; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(8px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.3); transition: transform 0.4s ease, box-shadow 0.4s ease; overflow: hidden; position: relative;">
+          <div class="image-container" style="height: 45%; padding: 10px; position: relative; border-bottom: 1px solid rgba(255, 255, 255, 0.2);">
+            <img src="{{#if Image}}/product-images/{{Image}}{{else}}/product-images/{{_id}}.jpg{{/if}}" class="card-img-top cart-image" style="width: 100%; height: 100%; object-fit: contain; border-radius: 10px; transition: transform 0.4s ease;" alt="{{Name}}" onerror="this.style.display='none';">
           </div>
-          <div class="card-body d-flex flex-column justify-content-between" style="padding: 0.75rem;">
+          <div class="card-body d-flex flex-column justify-content-between" style="padding: 1rem;">
             <div class="text-center">
-              <h5 class="card-title" style="font-family: 'Lora', serif; font-size: 1rem; font-weight: 600; color: #1a252f; margin-bottom: 0.4rem;">{{Name}}</h5>
-              <p class="card-text" style="font-family: 'Poppins', sans-serif; font-size: 0.8rem; color: #7f8c8d; line-height: 1.2; margin-bottom: 0.4rem;">{{Description}}</p>
-              <h6 class="card-title" style="font-family: 'Poppins', serif; font-size: 1rem; font-weight: 600; color: #1a252f;">Rs. {{Price}}</h6>
+              <h5 class="card-title" style="font-family: 'Lora', serif; font-size: 1.1rem; font-weight: 600; color: #1a252f; margin-bottom: 0.5rem; letter-spacing: 0.5px;">{{Name}}</h5>
+              <p class="card-text" style="font-family: 'Poppins', sans-serif; font-size: 0.85rem; color: #7f8c8d; line-height: 1.4; margin-bottom: 0.5rem; font-style: italic;">{{Description}}</p>
+              <h6 class="card-title" style="font-family: 'Poppins', serif; font-size: 1rem; font-weight: 600; color: #1a252f; border-top: 1px solid rgba(0, 0, 0, 0.1); padding-top: 0.5rem;">Rs. {{Price}}</h6>
             </div>
-            <a href="/add-to-cart/{{_id}}" class="btn btn-primary w-100 mt-1 add-to-cart-btn" data-product-id="{{_id}}" style="border-radius: 10px; font-size: 0.8rem; padding: 0.4rem; background: linear-gradient(135deg, #2c6da6 0%, #3498db 100%); border: none; transition: all 0.3s ease; text-decoration: none;">Add to Cart</a>
+            <button type="button" class="btn btn-primary w-100 mt-2 premium-btn" onclick="addToCart('{{_id}}')" style="border-radius: 10px; font-size: 0.85rem; padding: 0.5rem; background: linear-gradient(135deg, #2c6da6 0%, #3498db 100%); border: none; position: relative; overflow: hidden; transition: all 0.3s ease;">
+              <span style="position: relative; z-index: 1;">Add to Cart</span>
+              <span class="btn-ripple" style="position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.3); transform: scale(0); pointer-events: none;"></span>
+            </button>
           </div>
         </div>
       </div>
@@ -23,146 +26,125 @@
 </section>
 
 <style>
-  .product-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);
+  /* Glassmorphism Card Styling */
+  .product-card {
+    transform: perspective(1000px) rotateX(2deg);
   }
 
+  .product-card:hover {
+    transform: translateY(-5px) perspective(1000px) rotateX(0deg);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+  }
+
+  .product-card:hover .cart-image {
+    transform: scale(1.05);
+  }
+
+  /* Premium Button with Ripple Effect */
   .btn-primary:hover {
     background: linear-gradient(135deg, #1e5b8c 0%, #2c6da6 100%);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(52, 152, 219, 0.5);
   }
 
-  @media (max-width: 767px) {
-    .col-6 {
-      flex: 0 0 50%;
-      max-width: 50%;
+  .premium-btn:active .btn-ripple {
+    animation: ripple 0.6s ease-out;
+  }
+
+  @keyframes ripple {
+    0% {
+      transform: scale(0);
+      opacity: 1;
     }
+    100% {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 767px) {
     .card {
       height: 20rem;
-      max-width: 200px;
     }
     .image-container {
       height: 40%;
       padding: 8px;
     }
-    .card-title, .card-text, .btn {
-      font-size: 0.7rem;
+    .card-title {
+      font-size: 0.9rem;
+    }
+    .card-text, .btn {
+      font-size: 0.75rem;
     }
     .card-body {
-      padding: 0.5rem;
+      padding: 0.75rem;
     }
-  }
-
-  @media (min-width: 768px) {
-    .col-md-3 {
-      flex: 0 0 25%;
-      max-width: 25%;
+    .premium-btn {
+      padding: 0.4rem;
+      font-size: 0.75rem;
     }
   }
 </style>
 
 <script>
   // Pass the user object from the server to check login status
-  const user = {{{json user}}};
+  const user = {{{json user}}}; // Convert user object to JSON for client-side use
 
-  // Wrap the script in a try-catch to prevent other errors from stopping execution
-  try {
-    console.log('User object:', user);
+  function addToCart(productId) {
+    // If user is not logged in, redirect to login page
+    if (!user) {
+      console.log('User not logged in, redirecting to /login');
+      window.location.href = '/login';
+      return;
+    }
 
-    // Add event listeners to all add-to-cart buttons after DOM is loaded
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log('DOM fully loaded, attaching event listeners');
-      const buttons = document.querySelectorAll('.add-to-cart-btn');
-      console.log('Found add-to-cart buttons:', buttons.length);
-      buttons.forEach(button => {
-        button.addEventListener('click', function(event) {
-          event.preventDefault(); // Prevent the default <a> tag navigation
-          const productId = this.getAttribute('data-product-id');
-          console.log('Add to cart button clicked for product ID:', productId);
-          addToCart(productId);
-        });
+    console.log('Adding product to cart:', productId, 'for user:', user._id);
+
+    // If user is logged in, make an AJAX call to add the product to the cart
+    fetch(`/add-to-cart/${productId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => {
+        console.log('Fetch response:', response);
+        // Check if the response status indicates a redirect (e.g., user session expired)
+        if (response.redirected) {
+          console.log('Redirected to login, session might have expired');
+          window.location.href = '/login';
+          return;
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (!data) return; // If redirected, data will be undefined
+        console.log('Response data:', data);
+        if (data.status) {
+          alert('Product added to cart successfully!');
+          // Optionally, update the cart count in the UI if needed
+        } else {
+          alert('Failed to add product to cart: ' + (data.error || 'Unknown error'));
+        }
+      })
+      .catch(error => {
+        console.error('Add to Cart Error:', error);
+        alert('An error occurred while adding the product to the cart: ' + error.message);
+      });
+  }
+
+  // Add ripple effect for button click
+  document.addEventListener('DOMContentLoaded', () => {
+    const buttons = document.querySelectorAll('.premium-btn');
+    buttons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        const ripple = button.querySelector('.btn-ripple');
+        ripple.style.left = `${e.offsetX - ripple.offsetWidth / 2}px`;
+        ripple.style.top = `${e.offsetY - ripple.offsetHeight / 2}px`;
+        ripple.style.width = `${button.offsetWidth}px`;
+        ripple.style.height = `${button.offsetWidth}px`;
       });
     });
-
-    function addToCart(productId) {
-      console.log('addToCart called with productId:', productId);
-
-      // Check if user is logged in
-      if (!user || !user._id) {
-        console.log('User not logged in, redirecting to login');
-        const redirectUrl = encodeURIComponent(window.location.pathname);
-        window.location.href = `/login?redirect=${redirectUrl}`;
-        return;
-      }
-
-      // Show loading state on the button
-      const button = document.querySelector(`.add-to-cart-btn[data-product-id="${productId}"]`);
-      const originalText = button.textContent;
-      button.textContent = 'Adding...';
-      button.disabled = true;
-
-      // Make an AJAX call to add the product to the cart
-      fetch(`/add-to-cart/${productId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include' // Ensure session cookies are sent
-      })
-        .then(response => {
-          console.log('Fetch response:', { status: response.status, redirected: response.redirected });
-          if (response.redirected || response.status === 302) {
-            console.log('Server redirected, navigating to login');
-            const redirectUrl = encodeURIComponent(window.location.pathname);
-            window.location.href = `/login?redirect=${redirectUrl}`;
-            return null;
-          }
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then(data => {
-          button.textContent = originalText;
-          button.disabled = false;
-
-          if (!data) return; // If redirected, data is null
-
-          console.log('Fetch response data:', data);
-          if (data.status) {
-            const toast = document.createElement('div');
-            toast.style.position = 'fixed';
-            toast.style.bottom = '20px';
-            toast.style.right = '20px';
-            toast.style.backgroundColor = '#28a745';
-            toast.style.color = 'white';
-            toast.style.padding = '10px 20px';
-            toast.style.borderRadius = '5px';
-            toast.style.zIndex = '1000';
-            toast.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
-            toast.textContent = 'Product added to cart successfully!';
-            document.body.appendChild(toast);
-
-            setTimeout(() => {
-              toast.remove();
-            }, 3000);
-          } else {
-            console.error('Add to cart failed:', data.error);
-            alert('Failed to add product to cart: ' + (data.error || 'Unknown error'));
-          }
-        })
-        .catch(error => {
-          button.textContent = originalText;
-          button.disabled = false;
-          console.error('Add to Cart Error:', error);
-          alert('An error occurred while adding the product to the cart: ' + error.message);
-        });
-    }
-  } catch (error) {
-    console.error('Error in view-products script:', error);
-    // Fallback: If JavaScript fails, the <a> tag href will handle the redirect via the server
-  }
+  });
 </script>
