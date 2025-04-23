@@ -6,7 +6,7 @@ const state = {
 
 module.exports.connect = (done) => {
     const url = 'mongodb://localhost:27017'; // MongoDB connection URL
-    const dbname = 'shopping'; // Database name
+    const dbname = 'test'; // Database name
 
     const client = new MongoClient(url, { useUnifiedTopology: true });
 
