@@ -2,7 +2,8 @@ const bcrypt = require('bcrypt');
 const { MongoClient } = require('mongodb');
 
 async function initAdmin() {
-    const uri = 'mongodb+srv://marvankp847:Z0UkkKDAGGrpdF5e@shopping.skba5o5.mongodb.net/?retryWrites=true&w=majority&appName=shopping'; // Update with your MongoDB URI
+    const uri = 'mongodb+srv://marvankp847:Z0UkkKDAGGrpdF5e@shopping.skba5o5.mongodb.net/?retryWrites=true&w=majority&appName=shopping&tls=true';
+// Update with your MongoDB URI
     const client = new MongoClient(uri);
 
     try {
