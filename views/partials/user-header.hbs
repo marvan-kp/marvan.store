@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <title>Shopping Cart</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- ✅ Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7s3N4H26ifDfG/1eugCOJ8Fq2f0tYUwUknw" crossorigin="anonymous">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Bootstrap Icons for Cart Icon -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 </head>
 <body>
 
@@ -20,51 +21,52 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item pr-3">
-                        <a class="btn btn-outline-secondary me-2" href="/">Products</a>
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 d-flex align-items-lg-center">
+                    <li class="nav-item me-lg-2 mb-2 mb-lg-0">
+                        <a class="btn btn-outline-secondary w-100 w-lg-auto" href="/">Products</a>
                     </li>
-                    <li class="nav-item pr-3">
-                        <a href="/cart" class="btn btn-outline-secondary position-relative">
-                            <i class="bi bi-cart3">Cart</i>
+                    <li class="nav-item me-lg-2 mb-2 mb-lg-0">
+                        <a href="/cart" class="btn btn-outline-secondary position-relative w-100 w-lg-auto">
+                            <i class="bi bi-cart3"></i> Cart
                             {{#if cartCount}}
-                            <span class="position-absolute translate-middle badge rounded-pill bg-danger" id="cart-count">
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cart-count">
                                 {{cartCount}}
                             </span>
                             {{/if}}
                         </a>
                     </li>
                     {{#if user}}
-                    <li class="nav-item">
-                        <a class="btn btn-outline-secondary me-2" href="/orders">Orders</a>
+                    <li class="nav-item me-lg-2 mb-2 mb-lg-0">
+                        <a class="btn btn-outline-secondary w-100 w-lg-auto" href="/orders">Orders</a>
                     </li>
                     {{/if}}
+                    <li class="nav-item mb-2 mb-lg-0">
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary dropdown-toggle w-100 w-lg-auto" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                {{#if user}}
+                                    {{user.Name}}
+                                {{else}}
+                                    Account
+                                {{/if}}
+                            </button>
+                            <ul class="dropdown-menu">
+                                {{#if user}}
+                                <li><a class="dropdown-item" href="/logout">Log Out</a></li>
+                                {{else}}
+                                <li><a class="dropdown-item" href="/login">Login</a></li>
+                                <li><a class="dropdown-item" href="/signup">Sign Up</a></li>
+                                {{/if}}
+                            </ul>
+                        </div>
+                    </li>
                 </ul>
-
-                <div class="dropdown m-2">
-                    <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        {{#if user}}
-                            {{user.Name}}
-                        {{else}}
-                            Account
-                        {{/if}}
-                    </button>
-                    <ul class="dropdown-menu">
-                        {{#if user}}
-                        <li><a class="dropdown-item" href="/logout">Log Out</a></li>
-                        {{else}}
-                        <li><a class="dropdown-item" href="/login">Login</a></li>
-                        <li><a class="dropdown-item" href="/signup">Sign Up</a></li>
-                        {{/if}}
-                    </ul>
-                </div>
             </div>
         </div>
     </nav>
 </header>
 
-<!-- ✅ Bootstrap 5 JS Bundle (includes Popper.js) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-QJHtvGhmr9bInhZRA2iPoZr3rR6+43FZtZPcceG8jwSClbK0D6Ozh3tmNE2zY9Gc" crossorigin="anonymous"></script>
+<!-- Bootstrap 5 JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
 </body>
 </html>
