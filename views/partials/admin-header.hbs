@@ -1,37 +1,139 @@
 <header>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="/admin">Admin Panel</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/admin">Admin Panel</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="/admin">All Products
-                        <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/admin/orders">All Orders</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/admin/users">All Users</a>
-                </li>
-                {{#if admin.isSuperAdmin}}
-                <li class="nav-item">
-                    <a class="nav-link" href="#" id="addAdminLink">Add Admin</a>
-                </li>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/admin">All Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/orders">All Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users">All Users</a>
+                    </li>
+                    {{#if admin.isSuperAdmin}}
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="addAdminLink">Add Admin</a>
+                    </li>
+                    {{/if}}
+                </ul>
+                {{#if adminLoggedIn}}
+                    <a href="/admin/logout" class="btn btn-danger ms-3">Logout</a>
+                {{else}}
+                    <a href="/admin/login" class="btn btn-primary ms-3">Admin Login</a>
                 {{/if}}
-            </ul>
-            {{#if adminLoggedIn}}
-                <a href="/admin/logout" class="btn btn-danger ml-3">Logout</a>
-            {{else}}
-                <a href="/admin/login" class="btn btn-primary ml-3">Admin Login</a>
-            {{/if}}
+            </div>
         </div>
     </nav>
 </header>
+
+<style>
+    /* Premium header styling */
+    .navbar {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 1rem 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .navbar-brand {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a252f;
+        transition: color 0.3s ease;
+    }
+
+    .navbar-brand:hover {
+        color: #2c6da6;
+    }
+
+    .nav-link {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #1a252f;
+        padding: 0.5rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .nav-link:hover {
+        color: #2c6da6;
+        transform: translateY(-2px);
+        display: inline-block;
+    }
+
+    .nav-link.active {
+        color: #2c6da6;
+        font-weight: 600;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #2c6da6 0%, #3498db 100%);
+        border: none;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.9rem;
+        padding: 0.5rem 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #1e5b8c 0%, #2c6da6 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.5);
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #dc3545 0%, #e4606d 100%);
+        border: none;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.9rem;
+        padding: 0.5rem 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-danger:hover {
+        background: linear-gradient(135deg, #c82333 0%, #dc3545 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.5);
+    }
+
+    .navbar-toggler {
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .navbar-toggler:hover {
+        transform: scale(1.1);
+    }
+
+    @media (max-width: 991px) {
+        .navbar-nav {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-top: 0.5rem;
+        }
+
+        .nav-link {
+            padding: 0.75rem;
+            font-size: 1rem;
+        }
+
+        .btn-primary, .btn-danger {
+            margin-top: 1rem;
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
