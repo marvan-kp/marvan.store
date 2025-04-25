@@ -137,7 +137,7 @@ router.get('/delete-product/:id', (req, res) => {
 router.get('/edit-product/:id', async (req, res) => {
     try {
         let product = await productHelpers.getProductDetails(req.params.id);
-        console.log('Product data for edit:', product); // Debug log
+        console.log('Product data for edit:', product);
         if (!product) {
             return res.status(404).send('Product not found');
         }
@@ -148,7 +148,7 @@ router.get('/edit-product/:id', async (req, res) => {
     }
 });
 
-router.post('/edit-product/:id', (req, res) => {
+router.post('/edit-product/:id', async (req, res) => {
     let id = req.params.id;
     if (!/^[0-9a-fA-F]{24}$/.test(id)) {
         console.error('Invalid ObjectId:', id);
@@ -157,17 +157,36 @@ router.post('/edit-product/:id', (req, res) => {
     upload(req, res, async (err) => {
         if (err) {
             console.error('Upload error:', err);
-            return res.status(400).render('admin/edit-product', { product: req.body, error: err.message });
+            const product = await productHelpers.getProductDetails(id);
+            return res.status(400).render('admin/edit-product', { product, error: err.message });
         }
         let proDetails = req.body;
         if (!proDetails.Name || !proDetails.Category || !proDetails.Price || !proDetails.Description) {
-            return res.status(400).render('admin/edit-product', { product: proDetails, error: 'All fields (Name, Category, Price, Description) are required' });
+            const product = await productHelpers.getProductDetails(id);
+            return res.status(400).render('admin/edit-product', { product, error: 'All fields (Name, Category, Price, Description) are required' });
         }
+
+        // Fetch the existing product to get old images
+        const existingProduct = await productHelpers.getProductDetails(id);
+        let oldImages = existingProduct.Images || [];
+
         if (req.files && req.files.length > 0) {
+            // Delete old images from the filesystem
+            oldImages.forEach(image => {
+                const imagePath = path.join(__dirname, '../public/product-images/', image);
+                if (fs.existsSync(imagePath)) {
+                    fs.unlinkSync(imagePath);
+                    console.log('Deleted old image:', image);
+                }
+            });
+
+            // Update with new images
             proDetails.Image = req.files[0].filename;
             proDetails.Images = req.files.map(file => file.filename);
-        } else if (proDetails.Image) {
-            // Retain existing image if no new upload
+        } else {
+            // Retain existing images if no new uploads
+            proDetails.Image = existingProduct.Image;
+            proDetails.Images = existingProduct.Images;
         }
 
         const specsArray = proDetails.Specifications || [];
@@ -183,7 +202,8 @@ router.post('/edit-product/:id', (req, res) => {
             res.redirect('/admin');
         } catch (err) {
             console.error('Error updating product:', err);
-            res.status(500).render('admin/edit-product', { product: proDetails, error: 'Failed to update product' });
+            const product = await productHelpers.getProductDetails(id);
+            res.status(500).render('admin/edit-product', { product, error: 'Failed to update product' });
         }
     });
 });

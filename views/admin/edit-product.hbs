@@ -26,13 +26,17 @@
             <textarea class="form-control" name="Description" required>{{product.Description}}</textarea>
           </div>
           <div class="mb-3">
-            <label for="Image" class="form-label">Image</label>
-            {{#if product.Image}}
-              <img src="/product-images/{{product.Image}}" style="width: 100px; height: auto;" alt="" id="imgView">
-            {{else}}
-              <img src="/product-images/{{product._id}}.jpg" style="width: 100px; height: auto;" alt="" id="imgView" onerror="this.style.display='none';">
-            {{/if}}
-            <input type="file" class="form-control" name="Image" onchange="viewImage(event)">
+            <label for="Images" class="form-label">Images</label>
+            <div id="image-preview">
+              {{#if product.Images}}
+                {{#each product.Images}}
+                  <img src="/product-images/{{this}}" style="width: 100px; height: auto; margin-right: 10px;" alt="Product Image">
+                {{/each}}
+              {{else}}
+                <p>No images available.</p>
+              {{/if}}
+            </div>
+            <input type="file" class="form-control" name="Images" multiple onchange="viewImages(event)">
           </div>
 
           <h5 class="mt-3">Specifications</h5>
@@ -100,7 +104,17 @@
     button.closest('.specification-entry').remove();
   }
 
-  function viewImage(event) {
-    document.getElementById('imgView').src = URL.createObjectURL(event.target.files[0]);
+  function viewImages(event) {
+    const preview = document.getElementById('image-preview');
+    preview.innerHTML = ''; // Clear existing previews
+    const files = event.target.files;
+    for (let i = 0; i < files.length; i++) {
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(files[i]);
+      img.style.width = '100px';
+      img.style.height = 'auto';
+      img.style.marginRight = '10px';
+      preview.appendChild(img);
+    }
   }
 </script>
