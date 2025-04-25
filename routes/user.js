@@ -277,16 +277,30 @@ router.get('/checkout', verifyLogin, async (req, res) => {
 router.get('/place-order', verifyLogin, async (req, res) => {
     try {
         const userId = req.session.user._id;
+        const productId = req.query.productId;
 
         const userDoc = await db.get().collection(collection.USER_COLLECTION).findOne({ _id: new ObjectId(userId) });
         const savedAddress = userDoc?.shippingAddress;
 
-        const cartProducts = await userHelpers.getCartProducts(userId);
-
+        let products = [];
         let subtotal = 0;
-        cartProducts.forEach(item => {
-            subtotal += Number(item.product.Price) * item.quantity;
-        });
+
+        if (productId) {
+            // Single product "Buy Now" flow
+            const product = await productHelpers.getProductDetails(productId);
+            if (product) {
+                products.push({ product, quantity: 1 });
+                subtotal = Number(product.Price);
+            } else {
+                throw new Error('Product not found');
+            }
+        } else {
+            // Cart-based flow
+            products = await userHelpers.getCartProducts(userId);
+            products.forEach(item => {
+                subtotal += Number(item.product.Price) * item.quantity;
+            });
+        }
 
         const shipping = 0;
         const tax = Math.round(subtotal * 0.00);
@@ -295,12 +309,12 @@ router.get('/place-order', verifyLogin, async (req, res) => {
         res.render('user/place-order', {
             user: req.session.user,
             savedAddress,
-            products: cartProducts,
+            products: products,
             cartSummary: { subtotal, shipping, tax, total }
         });
     } catch (err) {
         console.error('Place Order Page Error:', err);
-        res.redirect('/cart');
+        res.redirect(productId ? '/product-details/' + productId : '/cart');
     }
 });
 
@@ -309,9 +323,23 @@ router.post('/submit-order', verifyLogin, async (req, res) => {
         const userId = req.session.user._id;
         const { paymentMethod, razorpayPaymentId } = req.body;
 
-        const cartProducts = await userHelpers.getCartProducts(userId);
-        if (!cartProducts.length) {
-            return res.status(400).json({ status: false, error: 'Cart is empty' });
+        const productId = req.query.productId; // Check for single product
+        let products = [];
+
+        if (productId) {
+            // Single product order
+            const product = await productHelpers.getProductDetails(productId);
+            if (product) {
+                products.push({ product, quantity: 1 });
+            } else {
+                return res.status(400).json({ status: false, error: 'Product not found' });
+            }
+        } else {
+            // Cart-based order
+            products = await userHelpers.getCartProducts(userId);
+            if (!products.length) {
+                return res.status(400).json({ status: false, error: 'Cart is empty' });
+            }
         }
 
         const userDoc = await db.get().collection(collection.USER_COLLECTION).findOne({ _id: new ObjectId(userId) });
@@ -319,7 +347,7 @@ router.post('/submit-order', verifyLogin, async (req, res) => {
         const userInfo = userDoc ? { name: userDoc.name, email: userDoc.email, phone: userDoc.phone } : {};
 
         let subtotal = 0;
-        cartProducts.forEach(item => {
+        products.forEach(item => {
             subtotal += Number(item.product.Price) * item.quantity;
         });
 
@@ -343,7 +371,7 @@ router.post('/submit-order', verifyLogin, async (req, res) => {
         const orderObj = {
             userId: new ObjectId(userId),
             userInfo: userInfo,
-            products: cartProducts,
+            products: products,
             shippingAddress,
             paymentMethod,
             razorpayPaymentId: paymentMethod === 'RAZORPAY' ? razorpayPaymentId : null,
@@ -354,7 +382,10 @@ router.post('/submit-order', verifyLogin, async (req, res) => {
 
         const order = await db.get().collection(collection.ORDER_COLLECTION).insertOne(orderObj);
 
-        await db.get().collection(collection.CART_COLLECTION).deleteOne({ user: new ObjectId(userId) });
+        if (!productId) {
+            // Clear cart only for cart-based orders
+            await db.get().collection(collection.CART_COLLECTION).deleteOne({ user: new ObjectId(userId) });
+        }
 
         res.json({ status: true, orderId: order.insertedId });
     } catch (err) {
@@ -402,7 +433,8 @@ router.get('/product-details/:id', async (req, res) => {
             return res.status(404).render('user/product-details', { error: 'Product not found' });
         }
 
-        res.render('user/product-details', { product, user: req.session.user });
+        const { averageRating, reviewCount } = await productHelpers.getProductRatingStats(productId);
+        res.render('user/product-details', { product, user: req.session.user, averageRating, reviewCount });
     } catch (err) {
         console.error('Product Details Error:', err);
         res.status(500).render('user/product-details', { error: 'Could not fetch product details.' });
@@ -438,6 +470,32 @@ router.post('/cancel-order/:id', verifyLogin, async (req, res) => {
     } catch (err) {
         console.error('Cancel Order Error:', err);
         res.status(500).json({ status: false, message: 'Server error' });
+    }
+});
+
+router.post('/submit-review/:id', verifyLogin, async (req, res) => {
+    try {
+        const productId = req.params.id;
+        const { rating, comment } = req.body;
+        const userId = req.session.user._id;
+        const username = req.session.user.name || req.session.user.Email.split('@')[0];
+
+        if (!rating || !comment) {
+            return res.status(400).json({ status: false, error: 'Rating and comment are required' });
+        }
+
+        const review = {
+            username,
+            rating: parseInt(rating),
+            comment,
+            date: new Date().toISOString()
+        };
+
+        await productHelpers.addUserReview(productId, review, userId);
+        res.json({ status: true, message: 'Review submitted successfully' });
+    } catch (err) {
+        console.error('Submit Review Error:', err);
+        res.status(500).json({ status: false, error: 'Failed to submit review' });
     }
 });
 

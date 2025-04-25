@@ -118,5 +118,57 @@ module.exports = {
                 reject(err);
             }
         });
+    },
+
+    addUserReview: (proId, review, userId) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!/^[0-9a-fA-F]{24}$/.test(proId) || !/^[0-9a-fA-F]{24}$/.test(userId)) {
+                    throw new Error('Invalid ObjectId');
+                }
+                const product = await db.get().collection(collection.PRODUCT_COLLECTION)
+                    .findOne({ _id: new objectId(proId) });
+                if (!product) {
+                    throw new Error('Product not found');
+                }
+                // Prevent duplicate reviews from the same user (simple check by username)
+                if (product.Reviews.some(r => r.username === review.username)) {
+                    throw new Error('You have already submitted a review for this product');
+                }
+                product.Reviews = product.Reviews || [];
+                product.Reviews.push(review);
+                await db.get().collection(collection.PRODUCT_COLLECTION)
+                    .updateOne(
+                        { _id: new objectId(proId) },
+                        { $set: { Reviews: product.Reviews } }
+                    );
+                resolve();
+            } catch (err) {
+                reject(err);
+            }
+        });
+    },
+
+    getProductRatingStats: (proId) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!/^[0-9a-fA-F]{24}$/.test(proId)) {
+                    throw new Error('Invalid ObjectId');
+                }
+                const product = await db.get().collection(collection.PRODUCT_COLLECTION)
+                    .findOne({ _id: new objectId(proId) });
+                if (!product) {
+                    throw new Error('Product not found');
+                }
+                const reviews = product.Reviews || [];
+                const reviewCount = reviews.length;
+                const averageRating = reviewCount > 0
+                    ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+                    : 0;
+                resolve({ averageRating, reviewCount });
+            } catch (err) {
+                reject(err);
+            }
+        });
     }
 };

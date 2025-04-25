@@ -45,7 +45,8 @@ app.engine('hbs', exphbs.engine({
                 return Object.keys(obj).length;
             }
             return 0;
-        }
+        },
+        round: (num) => Math.round(num * 10) / 10
     },
     handlebars: Handlebars
 }));
