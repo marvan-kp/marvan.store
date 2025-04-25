@@ -26,19 +26,46 @@
             <textarea class="form-control" name="Description" required>{{product.Description}}</textarea>
           </div>
           <div class="mb-3">
-            <label for="Images" class="form-label">Images</label>
-            <div id="image-preview">
-              {{#if product.Images}}
-                {{#each product.Images}}
-                  <img src="/product-images/{{this}}" style="width: 100px; height: auto; margin-right: 10px;" alt="Product Image">
-                {{/each}}
-              {{else}}
-                <p>No images available.</p>
-              {{/if}}
+            <label class="form-label">Images (up to 3)</label>
+            <div class="row">
+              <div class="col-md-4">
+                <label class="form-label">First Image</label>
+                <div id="preview1" class="mt-2">
+                  {{#if product.Images.[0]}}
+                    <img src="/product-images/{{product.Images.[0]}}" style="width: 100px; height: auto; border-radius: 8px;" alt="First Image">
+                  {{else}}
+                    <p>No image</p>
+                  {{/if}}
+                </div>
+                <button type="button" class="btn btn-outline-primary w-100 mt-2" onclick="document.getElementById('image1').click()">Replace First Image</button>
+                <input type="file" id="image1" name="Images" accept="image/jpeg,image/png" style="display: none;" onchange="previewImage(event, 'preview1')">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Second Image</label>
+                <div id="preview2" class="mt-2">
+                  {{#if product.Images.[1]}}
+                    <img src="/product-images/{{product.Images.[1]}}" style="width: 100px; height: auto; border-radius: 8px;" alt="Second Image">
+                  {{else}}
+                    <p>No image</p>
+                  {{/if}}
+                </div>
+                <button type="button" class="btn btn-outline-primary w-100 mt-2" onclick="document.getElementById('image2').click()">Replace Second Image</button>
+                <input type="file" id="image2" name="Images" accept="image/jpeg,image/png" style="display: none;" onchange="previewImage(event, 'preview2')">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Third Image</label>
+                <div id="preview3" class="mt-2">
+                  {{#if product.Images.[2]}}
+                    <img src="/product-images/{{product.Images.[2]}}" style="width: 100px; height: auto; border-radius: 8px;" alt="Third Image">
+                  {{else}}
+                    <p>No image</p>
+                  {{/if}}
+                </div>
+                <button type="button" class="btn btn-outline-primary w-100 mt-2" onclick="document.getElementById('image3').click()">Replace Third Image</button>
+                <input type="file" id="image3" name="Images" accept="image/jpeg,image/png" style="display: none;" onchange="previewImage(event, 'preview3')">
+              </div>
             </div>
-            <input type="file" class="form-control" name="Images" multiple onchange="viewImages(event)">
           </div>
-
           <h5 class="mt-3">Specifications</h5>
           <div id="specifications-container">
             {{#if product.Specifications}}
@@ -64,7 +91,6 @@
             {{/if}}
           </div>
           <button type="button" class="btn btn-secondary mb-3" onclick="addSpecificationField()">Add Specification</button>
-
           <button type="submit" class="btn btn-primary d-grid gap-2 col-6 mx-auto">Submit</button>
         </form>
       </div>
@@ -104,16 +130,17 @@
     button.closest('.specification-entry').remove();
   }
 
-  function viewImages(event) {
-    const preview = document.getElementById('image-preview');
-    preview.innerHTML = ''; // Clear existing previews
-    const files = event.target.files;
-    for (let i = 0; i < files.length; i++) {
+  function previewImage(event, previewId) {
+    const preview = document.getElementById(previewId);
+    preview.innerHTML = ''; // Clear existing preview
+    const file = event.target.files[0];
+    if (file) {
       const img = document.createElement('img');
-      img.src = URL.createObjectURL(files[i]);
+      img.src = URL.createObjectURL(file);
       img.style.width = '100px';
       img.style.height = 'auto';
-      img.style.marginRight = '10px';
+      img.style.borderRadius = '8px';
+      img.alt = 'Image Preview';
       preview.appendChild(img);
     }
   }
