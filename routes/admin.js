@@ -6,57 +6,118 @@ const db = require('../config/connection');
 const collection = require('../config/collections');
 const bcrypt = require('bcrypt');
 const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
 const { ObjectId } = require('mongodb');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, './public/product-images/');
+        const uploadPath = './public/product-images/';
+        try {
+            if (!fs.existsSync(uploadPath)) {
+                fs.mkdirSync(uploadPath, { recursive: true });
+                console.log('Created upload directory:', uploadPath);
+            }
+            cb(null, uploadPath);
+        } catch (err) {
+            console.error('Error creating upload directory:', err);
+            cb(err);
+        }
     },
     filename: (req, file, cb) => {
-        const filename = Date.now() + '-' + file.originalname;
-        cb(null, filename);
+        try {
+            const filename = Date.now() + '-' + file.originalname;
+            console.log('Saving file as:', filename);
+            cb(null, filename);
+        } catch (err) {
+            console.error('Error generating filename:', err);
+            cb(err);
+        }
     }
 });
 const upload = multer({
     storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
     fileFilter: (req, file, cb) => {
         if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+            console.log('File type accepted:', file.mimetype);
             cb(null, true);
         } else {
-            cb(new Error('Only JPEG or PNG files are allowed'));
+            console.error('Invalid file type:', file.mimetype);
+            cb(new Error('Only JPEG or PNG files are allowed'), false);
         }
     }
-});
+}).array('Images', 5);
 
 router.get('/', function(req, res, next) {
     productHelpers.getAllProducts().then((products) => {
         res.render('admin/view-products', { admin: true, products });
     }).catch((err) => {
-        console.error(err);
+        console.error('Error fetching products:', err);
         res.status(500).send('Error fetching products');
     });
 });
 
 router.get('/add-product', (req, res) => {
-    res.render('admin/add-product');
+    res.render('admin/add-product', { error: req.session.addProductError });
+    req.session.addProductError = null;
 });
 
-router.post('/add-product', upload.single('Image'), (req, res) => {
-    let product = req.body;
-    if (!product.Name || !product.Category || !product.Price || !product.Description) {
-        return res.status(400).send('All fields are required');
-    }
-    if (req.file) {
-        product.Image = req.file.filename;
-    }
-    productHelpers.addProduct(product)
-        .then(() => {
-            res.redirect('/admin');
-        })
-        .catch((err) => {
-            console.error('Error adding product:', err);
-            res.status(500).send('Error adding product');
+router.post('/add-product', async (req, res) => {
+    try {
+        console.log('Starting file upload...');
+        upload(req, res, async (err) => {
+            if (err) {
+                console.error('Upload error:', err.message, err.stack);
+                req.session.addProductError = `Image upload failed: ${err.message}`;
+                return res.redirect('/admin/add-product');
+            }
+
+            try {
+                console.log('Upload successful, files:', req.files);
+                let product = req.body;
+                console.log('Product data:', product);
+
+                if (!product.Name || !product.Category || !product.Price || !product.Description) {
+                    req.session.addProductError = 'All fields (Name, Category, Price, Description) are required';
+                    return res.redirect('/admin/add-product');
+                }
+
+                if (req.files && req.files.length > 0) {
+                    product.Image = req.files[0].filename;
+                    product.Images = req.files.map(file => file.filename);
+                    console.log('Images assigned:', product.Images);
+                } else {
+                    product.Image = 'default-image.jpg';
+                    product.Images = ['default-image.jpg'];
+                    console.warn('No images uploaded, using default image');
+                }
+
+                const specsArray = product.Specifications || [];
+                product.Specifications = {};
+                specsArray.forEach(spec => {
+                    if (spec.name && spec.value) {
+                        product.Specifications[spec.name] = spec.value;
+                    }
+                });
+
+                product.Reviews = [];
+
+                console.log('Adding product to database:', product);
+                await productHelpers.addProduct(product);
+                console.log('Product added successfully');
+                res.redirect('/admin');
+            } catch (err) {
+                console.error('Error adding product:', err.message, err.stack);
+                req.session.addProductError = 'Failed to add product: ' + err.message;
+                res.redirect('/admin/add-product');
+            }
         });
+    } catch (err) {
+        console.error('Outer error in /add-product:', err.message, err.stack);
+        req.session.addProductError = 'Unexpected error: ' + err.message;
+        res.redirect('/admin/add-product');
+    }
 });
 
 router.get('/delete-product/:id', (req, res) => {
@@ -76,34 +137,152 @@ router.get('/delete-product/:id', (req, res) => {
 router.get('/edit-product/:id', async (req, res) => {
     try {
         let product = await productHelpers.getProductDetails(req.params.id);
+        console.log('Product data for edit:', product); // Debug log
+        if (!product) {
+            return res.status(404).send('Product not found');
+        }
         res.render('admin/edit-product', { product });
     } catch (err) {
-        console.error(err);
+        console.error('Error fetching product details:', err);
         res.status(500).send('Error fetching product details');
     }
 });
 
-router.post('/edit-product/:id', upload.single('Image'), (req, res) => {
+router.post('/edit-product/:id', (req, res) => {
     let id = req.params.id;
     if (!/^[0-9a-fA-F]{24}$/.test(id)) {
         console.error('Invalid ObjectId:', id);
         return res.status(400).send('Invalid product ID');
     }
-    let proDetails = req.body;
-    if (!proDetails.Name || !proDetails.Category || !proDetails.Price || !proDetails.Description) {
-        return res.status(400).send('All fields are required');
-    }
-    if (req.file) {
-        proDetails.Image = req.file.filename;
-    } else if (proDetails.Image) {
-        // Retain existing image
-    }
-    productHelpers.updateProduct(id, proDetails).then(() => {
-        res.redirect('/admin');
-    }).catch((err) => {
-        console.error(err);
-        res.status(500).send('Error updating product');
+    upload(req, res, async (err) => {
+        if (err) {
+            console.error('Upload error:', err);
+            return res.status(400).render('admin/edit-product', { product: req.body, error: err.message });
+        }
+        let proDetails = req.body;
+        if (!proDetails.Name || !proDetails.Category || !proDetails.Price || !proDetails.Description) {
+            return res.status(400).render('admin/edit-product', { product: proDetails, error: 'All fields (Name, Category, Price, Description) are required' });
+        }
+        if (req.files && req.files.length > 0) {
+            proDetails.Image = req.files[0].filename;
+            proDetails.Images = req.files.map(file => file.filename);
+        } else if (proDetails.Image) {
+            // Retain existing image if no new upload
+        }
+
+        const specsArray = proDetails.Specifications || [];
+        proDetails.Specifications = {};
+        specsArray.forEach(spec => {
+            if (spec.name && spec.value) {
+                proDetails.Specifications[spec.name] = spec.value;
+            }
+        });
+
+        try {
+            await productHelpers.updateProduct(id, proDetails);
+            res.redirect('/admin');
+        } catch (err) {
+            console.error('Error updating product:', err);
+            res.status(500).render('admin/edit-product', { product: proDetails, error: 'Failed to update product' });
+        }
     });
+});
+
+router.get('/add-review/:id', async (req, res) => {
+    try {
+        const productId = req.params.id;
+        if (!/^[0-9a-fA-F]{24}$/.test(productId)) {
+            return res.status(400).send('Invalid product ID');
+        }
+        const product = await productHelpers.getProductDetails(productId);
+        if (!product) {
+            return res.status(404).send('Product not found');
+        }
+        res.render('admin/add-review', { product, error: req.session.addReviewError });
+        req.session.addReviewError = null;
+    } catch (err) {
+        console.error('Error fetching product for review:', err);
+        res.status(500).send('Error fetching product for review');
+    }
+});
+
+router.post('/add-review/:id', async (req, res) => {
+    try {
+        const productId = req.params.id;
+        if (!/^[0-9a-fA-F]{24}$/.test(productId)) {
+            return res.status(400).send('Invalid product ID');
+        }
+        const { username, rating, comment } = req.body;
+        if (!username || !rating || !comment) {
+            req.session.addReviewError = 'All fields (Username, Rating, Comment) are required';
+            return res.redirect(`/admin/add-review/${productId}`);
+        }
+        const review = {
+            username,
+            rating: parseInt(rating),
+            comment,
+            date: new Date().toISOString()
+        };
+        const product = await productHelpers.getProductDetails(productId);
+        if (!product) {
+            return res.status(404).send('Product not found');
+        }
+        product.Reviews = product.Reviews || [];
+        product.Reviews.push(review);
+        await productHelpers.updateProduct(productId, product);
+        res.redirect('/admin');
+    } catch (err) {
+        console.error('Error adding review:', err);
+        req.session.addReviewError = 'Failed to add review: ' + err.message;
+        res.redirect(`/admin/add-review/${req.params.id}`);
+    }
+});
+
+router.get('/api/product/:id', async (req, res) => {
+    try {
+        const productId = req.params.id;
+        if (!/^[0-9a-fA-F]{24}$/.test(productId)) {
+            return res.status(400).json({ error: 'Invalid product ID' });
+        }
+        const product = await productHelpers.getProductDetails(productId);
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+        res.json({ status: true, product });
+    } catch (err) {
+        console.error('Error fetching product for review:', err);
+        res.status(500).json({ error: 'Error fetching product for review' });
+    }
+});
+
+router.post('/api/add-review/:id', async (req, res) => {
+    try {
+        const productId = req.params.id;
+        if (!/^[0-9a-fA-F]{24}$/.test(productId)) {
+            return res.status(400).json({ error: 'Invalid product ID' });
+        }
+        const { username, rating, comment } = req.body;
+        if (!username || !rating || !comment) {
+            return res.status(400).json({ error: 'All fields (Username, Rating, Comment) are required' });
+        }
+        const review = {
+            username,
+            rating: parseInt(rating),
+            comment,
+            date: new Date().toISOString()
+        };
+        const product = await productHelpers.getProductDetails(productId);
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+        product.Reviews = product.Reviews || [];
+        product.Reviews.push(review);
+        await productHelpers.updateProduct(productId, product);
+        res.json({ status: true, message: 'Review added successfully' });
+    } catch (err) {
+        console.error('Error adding review:', err);
+        res.status(500).json({ error: 'Failed to add review' });
+    }
 });
 
 router.get('/orders', async (req, res) => {
@@ -167,7 +346,7 @@ router.post('/login', (req, res) => {
 
 router.post('/add-admin', async (req, res) => {
     if (!req.session.admin || !req.session.admin.isSuperAdmin) {
-        return res.status(403).json({ status: false, error: 'Super admin privileges required' });
+        return res.status(400).json({ status: false, error: 'Super admin privileges required' });
     }
     const { Email, Password } = req.body;
     const hashedPassword = await bcrypt.hash(Password, 10);
@@ -206,4 +385,4 @@ router.get('/user-details/:id', async (req, res) => {
     }
 });
 
-module.exports = router; 
+module.exports = router;

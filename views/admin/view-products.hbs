@@ -1,50 +1,51 @@
-
-
-<link href="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.2.2/sp-2.3.3/datatables.min.css" rel="stylesheet" integrity="sha384-LWkoZo9JW648WWbZjN4G96AU/Fk5n5sctaMwD2EI5gUygF9E9e79waIlf4awoMNr" crossorigin="anonymous">
- 
-
 <section>
   <div class="container mt-4">
-    <h2 class="text-center">All Products</h2>
-    <a href="/admin/add-product" class="btn btn-success mb-3">Add Product</a>
-    <table class="table table-bordered" id="myTable">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Category</th>
-          <th>Price</th>
-          <th>Description</th>
-          <th>Image</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each products}}
-        <tr>
-          <td>{{Name}}</td>
-          <td>{{Category}}</td>
-          <td>{{Price}}</td>
-          <td>{{Description}}</td>
-          <td>
-            {{#if Image}}
-              <img src="/product-images/{{Image}}" style="width: 50px; height: auto;" alt="{{Name}}">
-            {{else}}
-              <img src="/product-images/{{_id}}.jpg" style="width: 50px; height: auto;" alt="{{Name}}" onerror="this.style.display='none';">
-            {{/if}}
-          </td>
-          <td>
-            <a href="/admin/edit-product/{{_id}}" class="btn btn-primary btn-sm">Edit</a>
-            <a href="/admin/delete-product/{{_id}}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete {{Name}}?')">Delete</a>
-          </td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
+    <div class="row">
+      <div class="col-md-12">
+        <h2 class="text-center mb-4">All Products</h2>
+        <a href="/admin/add-product" class="btn btn-success mb-3">Add Product</a>
+        <table class="table table-bordered" id="productsTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Description</th>
+              <th>Image</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each products}}
+            <tr>
+              <td>{{Name}}</td>
+              <td>{{Category}}</td>
+              <td>{{Price}}</td>
+              <td>{{Description}}</td>
+              <td>
+                <img src="/product-images/{{Image}}" style="width: 50px; height: auto;" alt="{{Name}}" onerror="this.style.display='none';">
+              </td>
+              <td>
+                <a href="/admin/edit-product/{{_id}}" class="btn btn-primary btn-sm">Edit</a>
+                <a href="/admin/delete-product/{{_id}}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete {{Name}}?')">Delete</a>
+                <a href="/admin/add-review/{{_id}}" class="btn btn-info btn-sm">Add Review</a>
+              </td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </section>
+
+<!-- Include jQuery and DataTables -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+
 <script>
-  $(document).ready( function () {
-    $('#myTable').DataTable();
-} );
+  $(document).ready(function() {
+    $('#productsTable').DataTable();
+  });
 </script>
-<script src="https://cdn.datatables.net/v/bs5/jq-3.7.0/dt-2.2.2/sp-2.3.3/datatables.min.js" integrity="sha384-LiYO2Yj0ZZdrjd8odK2qBgOcXKgzi1EubbVhVMjEafoHgoDpT1KtFcSVRR8zN26F" crossorigin="anonymous"></script>

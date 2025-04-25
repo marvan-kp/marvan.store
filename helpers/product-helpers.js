@@ -9,6 +9,10 @@ module.exports = {
                 if (!product.Name || !product.Category || !product.Price || !product.Description) {
                     throw new Error('All fields (Name, Category, Price, Description) are required');
                 }
+                product.Images = product.Images || ['default-image.jpg'];
+                product.Specifications = product.Specifications || {};
+                product.Reviews = product.Reviews || [];
+
                 db.get().collection(collection.PRODUCT_COLLECTION).insertOne(product)
                     .then((data) => {
                         resolve(data.insertedId);
@@ -21,6 +25,7 @@ module.exports = {
             }
         });
     },
+
     getAllProducts: () => {
         return new Promise(async (resolve, reject) => {
             try {
@@ -31,6 +36,7 @@ module.exports = {
             }
         });
     },
+
     deleteProduct: (proId) => {
         return new Promise((resolve, reject) => {
             try {
@@ -52,6 +58,7 @@ module.exports = {
             }
         });
     },
+
     getProductDetails: (proId) => {
         return new Promise((resolve, reject) => {
             try {
@@ -71,6 +78,7 @@ module.exports = {
             }
         });
     },
+
     updateProduct: (proId, proDetails) => {
         return new Promise((resolve, reject) => {
             try {
@@ -84,11 +92,17 @@ module.exports = {
                     Name: proDetails.Name,
                     Description: proDetails.Description,
                     Price: proDetails.Price,
-                    Category: proDetails.Category
+                    Category: proDetails.Category,
+                    Specifications: proDetails.Specifications || {},
+                    Reviews: proDetails.Reviews || []
                 };
                 if (proDetails.Image) {
                     updateData.Image = proDetails.Image;
                 }
+                if (proDetails.Images) {
+                    updateData.Images = proDetails.Images;
+                }
+
                 db.get().collection(collection.PRODUCT_COLLECTION)
                     .updateOne(
                         { _id: new objectId(proId) },

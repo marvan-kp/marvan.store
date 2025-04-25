@@ -12,11 +12,9 @@ var app = express();
 var session = require('express-session');
 const Handlebars = require('handlebars');
 
-// Verify environment variables
 console.log('RAZORPAY_KEY_ID from app.js:', process.env.RAZORPAY_KEY_ID);
 console.log('RAZORPAY_KEY_SECRET from app.js:', process.env.RAZORPAY_KEY_SECRET);
 
-// View engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 app.engine('hbs', exphbs.engine({
@@ -25,6 +23,13 @@ app.engine('hbs', exphbs.engine({
     layoutsDir: path.join(__dirname, 'views/layout'),
     partialsDir: path.join(__dirname, 'views/partials'),
     helpers: {
+        times: function(n, block) {
+            let accum = '';
+            for (let i = 0; i < n; i++) {
+              accum += block.fn(i);
+            }
+            return accum;
+        },
         multiply: (a, b) => a * b,
         ifEquals: function(a, b, options) {
             if (a === b) {
@@ -34,7 +39,13 @@ app.engine('hbs', exphbs.engine({
             }
         },
         json: context => JSON.stringify(context, null, 2),
-        formatDate: (date) => new Date(date).toLocaleDateString()
+        formatDate: (date) => new Date(date).toLocaleDateString(),
+        objectLength: (obj) => {
+            if (obj && typeof obj === 'object') {
+                return Object.keys(obj).length;
+            }
+            return 0;
+        }
     },
     handlebars: Handlebars
 }));
@@ -84,6 +95,11 @@ app.get('/admin/logout', (req, res) => {
         }
         res.redirect('/admin/login');
     });
+});
+
+app.use(express.static(path.join(__dirname, 'client/build')));
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
 });
 
 app.use(function(req, res, next) {
